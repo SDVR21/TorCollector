@@ -4,12 +4,15 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from collections import deque
+import random
+import time #sleep
+from multiprocessing import Pool
 import sys
+import os
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
-import random
-import time #sleep
+
 from bs4.builder import XMLParsedAsHTMLWarning
 import warnings
 warnings.filterwarnings('ignore', category=XMLParsedAsHTMLWarning)
@@ -36,7 +39,7 @@ def traverse_all(seed):
         if now == seed:
             now = ''
         tl = traverse_list(seed, now)
-        time.sleep(random.uniform(3,10))
+        time.sleep(random.uniform(3,5))
         if tl == 0:
             continue
         for o in tl:
@@ -66,10 +69,10 @@ def traverse_list(seed, tag):
         for h in aTag:
             try:
                 at = h.attrs['href']
+                if ".onion" not in at and "http" not in at and "#" not in at and at != '/':
+                    href_list.append(at)
             except KeyError: # a태그인데 href가 없음 
                 key_list.append(h)
-            if ".onion" not in at and "http" not in at and "#" not in at and at != '/':
-                href_list.append(at)
         href_list = list(set(href_list))
         if len(href_list) == 0:
             if tag == '/': error("no href: "+seed)
@@ -82,13 +85,23 @@ def traverse_list(seed, tag):
         error("Invalid URL: "+url)
         return 0
 
+def multi_processsss(on):
+    os.mkdir("output/"+on)
+    time.sleep(random.uniform(3,5))
+    print("********** ", on, " start **********")
+    vi = traverse_all(on)
+    print("********** %s done ********** (result: %d)" %(on, vi))
+    return
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("no onion")
         sys.exit()
-
-    #입력: ~~.onion
-    on = sys.argv[1].strip()[:-6]
-    #.onion 떼서 넣음
-    vi = traverse_all(on)
-    print("!!  result: %d  !!" %vi)
+    a = time.time()
+    onions = [o.strip()[:-6] for o in open(sys.argv[1].strip(), "r").readlines()]
+    pool = Pool(processes = 4) # 4개의 프로세스를 사용합니다.
+    pool.map(multi_processsss, onions)
+    pool.close()
+    pool.join()
+    b = time.time()
+    print("----------------------- total: ", b-a,"s")
