@@ -1,0 +1,6 @@
+socks
+pysocks
+python-socks
+requests
+beautifulsoup4
+lxml
