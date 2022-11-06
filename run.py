@@ -90,6 +90,7 @@ def worker(seed):
 
 if __name__ == '__main__':  
     if len(sys.argv) != 2:
+        print("python3 ./run.py onion.txt")
         sys.exit()
     with open(sys.argv[1].strip(), "r") as f:
         onions = [i.strip() for i in f.readlines()]
