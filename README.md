@@ -1,6 +1,7 @@
 # TorCollector
+
 <img src="images/design.png" alt="collectorDesign" width="550">
-### 주어진 seed onion 마다 순회하며 모든 페이지를 수집하는 tor crawler 프로그램  
+### 주어진 seed onion 마다 순회하며 모든 페이지를 수집하는 tor crawler 프로그램
 
 #### 실행 방법
 ~~~
