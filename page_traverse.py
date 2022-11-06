@@ -2,13 +2,13 @@ import socks
 import socket
 import requests
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
 from collections import deque
 import random
 import time #sleep
 from multiprocessing import Pool
-import sys
 import os
+
+import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
@@ -23,85 +23,64 @@ def getaddrinfo(*args):
     return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
 socket.getaddrinfo = getaddrinfo
 
-def error(str):
-    print(str)
+def error(errtag, str):
+    print(errtag, ":", str)
     return
 
-####### \n 주의
-# seed: ~~d xonion
-def traverse_all(seed):
-    visited, onionList = set(), deque([seed])
-    visited.add(seed)
-    while onionList:
-        now = onionList.popleft()
-        if now not in visited:
-            visited.add(now)
-        if now == seed:
-            now = ''
-        tl = traverse_list(seed, now)
-        time.sleep(random.uniform(3,5))
-        if tl == 0:
-            continue
-        for o in tl:
-            if o not in visited:
-                onionList.append(o)
-    return (len(visited))
-
-def save_file(seed, now, soup):
-    now = now.replace("/", "#")
-    f = open("./output/"+seed+"/"+seed+".onion"+now, 'w')
-    f.write(soup)
-    f.close()
-    return
-
-def traverse_list(seed, tag):
+def page_traverse(seed, tag, visited):
     try:
-        if len(tag) > 0:
-            if tag[0] != '/':
-                tag = '/'+tag
         url = "http://"+seed+".onion"+tag
-        req = requests.get(url)
+        req = requests.get(url, timeout=30)
         soup = BeautifulSoup(req.content, 'lxml')
-        save_file(seed, tag, soup.prettify()) #soup 저장
-        aTag = soup.find_all('a')
+        with open("./output/"+seed+"/"+seed+".onion"+tag.replace("/", "#"), 'w') as f:
+            f.write(soup.prettify())
+        aTag = soup.find_all('a', href=True)
         href_list = []
-        key_list = []
         for h in aTag:
-            try:
-                at = h.attrs['href']
-                if ".onion" not in at and "http" not in at and "#" not in at and at != '/':
-                    href_list.append(at)
-            except KeyError: # a태그인데 href가 없음 
-                key_list.append(h)
-        href_list = list(set(href_list))
-        if len(href_list) == 0:
-            if tag == '/': error("no href: "+seed)
-            return 0
+            at = h['href']
+            if (".onion" in at) or ("http" in at) or ("#" in at) or (at == '/') or (at == ''):
+                continue
+            if (".jpg" in at) or (".png" in at):
+                continue
+            if at[0] != '/':
+                tag = '/' + tag
+            if at in visited:
+                continue
+            href_list.append(at)
         return href_list
+    except requests.exceptions.Timeout:
+        error("TO", url)
+        return 0
     except requests.ConnectionError:
-        error("Connection refused: "+url)
+        error("CR", url)
         return 0
     except requests.exceptions.InvalidURL:
-        error("Invalid URL: "+url)
+        error("IU", url)
         return 0
 
-def multi_processsss(on):
-    os.mkdir("output/"+on)
-    time.sleep(random.uniform(3,5))
-    print("********** ", on, " start **********")
-    vi = traverse_all(on)
-    print("********** %s done ********** (result: %d)" %(on, vi))
+def traverse_all(seed):
+    os.mkdir("output/"+seed)
+    print("[", seed, "] start")
+    visitedTag, onionList = set(), deque()
+    onionList.append('')
+    visitedTag.add('')
+    while onionList:
+        now = onionList.popleft()
+        visitedTag.add(now)
+        time.sleep(random.uniform(3,5))
+        tmp = page_traverse(seed, now, visitedTag)
+        if tmp:
+            onionList.extend(tmp)
+    print("[", seed, "] done - result: ", len(visitedTag))
     return
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print("no onion")
+        print("python3 page_traverse.py onion.txt")
         sys.exit()
-    a = time.time()
-    onions = [o.strip()[:-6] for o in open(sys.argv[1].strip(), "r").readlines()]
-    pool = Pool(processes = 4) # 4개의 프로세스를 사용합니다.
-    pool.map(multi_processsss, onions)
+    with open(sys.argv[1].strip(), "r") as f:
+        onions = [i.strip()[:-6] for i in f.readlines()]
+    pool = Pool(processes = 4)
+    pool.map(traverse_all, onions)
     pool.close()
     pool.join()
-    b = time.time()
-    print("----------------------- total: ", b-a,"s")
