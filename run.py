@@ -56,11 +56,9 @@ def page_traverse(seed, tag, visited):
                     continue
                 if (".jpg" in at) or (".png" in at):
                     continue
-                if (at == '') or (at == '/'):
-                    continue
                 if at[0] != '/':
                     tag = '/'+tag
-                tag.append(at)
+                tag.add(at)
             except KeyError: #href 없을 때 
                 continue
     except FileNotFoundError:
