@@ -7,10 +7,10 @@
 
 #### 실행 방법
 ~~~
-python3 page_traverse.py onion.txt
+python3 run_multiprocess.py onion.txt
 ~~~
 
-#### 후속 프로젝트
+#### 추후 수정 사항
 - 멀티 프로세싱 상에서 logging 추가  
 - html content를 분석하여 onion category 자동 분류  
 - Mongodb 연결  
