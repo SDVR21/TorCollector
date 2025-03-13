@@ -7,11 +7,14 @@
 
 #### 실행 방법
 ~~~
-python3 run_multiprocess.py onion.txt
+docker build -t tor:latest .
 ~~~
 
-#### 추후 수정 사항
-- 멀티 프로세싱 상에서 logging 추가  
-- html content를 분석하여 onion category 자동 분류  
-- Mongodb 연결  
+~~~
+docker run -it --name torc tor:latest
+~~~
+
+~~~
+python3 run_multiprocess.py onion.txt
+~~~
 
