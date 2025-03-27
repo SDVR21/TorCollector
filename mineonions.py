@@ -44,7 +44,7 @@ def my_request(onion):
         return (-1)
         
 def save_file(onion, now, soup):
-    f = open(onion+"/"+now+".txt", 'r')
+    f = open(onion+"/"+now+".txt", 'w')
     f.write(soup)
     f.close()
     return
@@ -68,23 +68,27 @@ def page_traverse(onion):
 
 def onion_list(onion, re):
     try:
-        with requests.get("http://"+onion, timeout=30) as req:
+        with requests.get("http://"+onion, timeout=10) as req:
             soup = BeautifulSoup(req.content, 'lxml')
         ma=onion_rex.findall(soup.text)
         if ma:
             if ma[0]==onion:
-                print("end")
+                pass
+                #print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Collected {len(ma)} urls from onion", flush=True)
             # print("**********************%d", len(ma))
             return set(ma)
         else:
             return 0
     except requests.ConnectionError:
         # print("Connection refused")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Connection refused: {onion}", flush=True)
         return 0
     except requests.exceptions.InvalidURL:
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Invalid URL: {onion}", flush=True)
         # print("Invalid URL")
         return 0
     except requests.exceptions.ReadTimeout:
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Connection timeout: {onion}", flush=True)
         return 0
     # no_result = soup.find('p')
     # if no_result!=None:
@@ -104,6 +108,7 @@ def bfs(onion, key):
         count+=1
         if vertex not in visited:
             visited.add(vertex)
+            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Visited: {vertex}", flush=True)
 
         # If not visited, mark it as visited, and
         # enqueue it
@@ -112,10 +117,12 @@ def bfs(onion, key):
            continue
         for o in s:
            queue.append(o)
-        
+           
         time.sleep(random.uniform(1,4))
-    f1.write("********************** visited: "+str(len(visited))+"  count: "+str(count)+"\n")    
+        
+    f1.write("********************** visited: "+str(len(visited))+"  count: "+str(count)+"\n")
     f1.close()
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ********************** visited: {str(len(visited))}  count: {str(count)}", flush=True)
     return
 
 
@@ -127,4 +134,5 @@ if __name__ == '__main__':
     keyword = sys.argv[1].strip()
     # https://ahmia.fi/search/?q=asdkljfsd
     onion="ahmia.fi/search/?q="+keyword
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting from keyword {keyword}: {onion}", flush=True)
     bfs(onion, keyword)
