@@ -10,6 +10,7 @@ from multiprocessing import Pool
 import sys
 import os
 import io
+from datetime import datetime
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
 
@@ -23,8 +24,8 @@ def getaddrinfo(*args):
     return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
 socket.getaddrinfo = getaddrinfo
 
-def error(str):
-    print(str)
+def error(msg):
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
     return
 
 ####### \n 주의
@@ -60,7 +61,7 @@ def traverse_list(seed, tag):
             if tag[0] != '/':
                 tag = '/'+tag
         url = "http://"+seed+".onion"+tag
-        req = requests.get(url, timeout=50)
+        req = requests.get(url, timeout=10)
         soup = BeautifulSoup(req.content, 'lxml')
         save_file(seed, tag, soup.prettify()) #soup 저장
         aTag = soup.find_all('a')
@@ -79,21 +80,21 @@ def traverse_list(seed, tag):
             return 0
         return href_list
     except requests.exceptions.Timeout:
-        error("Time out: "+url)
+        error(f"Timeout encountered for URL: {url}")
         return 0
     except requests.ConnectionError:
-        error("Connection refused: "+url)
+        error(f"Connection refused for URL: {url}")
         return 0
     except requests.exceptions.InvalidURL:
-        error("Invalid URL: "+url)
+        error(f"Invalid URL: {url}")
         return 0
 
 def multi_process(on):
     os.mkdir("output/"+on)
     time.sleep(random.uniform(1,4))
-    print("********** ", on, " start **********")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processing started for {on}", flush=True)
     vi = traverse_all(on)
-    print("********** %s done ********** (result: %d)" %(on, vi))
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processing completed for {on} - {vi} items visited", flush=True)
     return
 
 if __name__ == '__main__':
@@ -107,4 +108,4 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
     b = time.time()
-    print("----------------------- total: ", b-a,"s")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Total processing time: {int(b-a)}s", flush=True)
