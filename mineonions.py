@@ -68,7 +68,7 @@ def page_traverse(onion):
 
 def onion_list(onion, re):
     try:
-        with requests.get("http://"+onion, timeout=10) as req:
+        with requests.get("http://"+onion, timeout=30) as req:
             soup = BeautifulSoup(req.content, 'lxml')
         ma=onion_rex.findall(soup.text)
         if ma:
