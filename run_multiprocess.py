@@ -90,7 +90,7 @@ def traverse_list(seed, tag):
         return 0
 
 def multi_process(on):
-    os.mkdir("output/"+on)
+    os.makedirs("output/"+on, exist_ok=True)
     time.sleep(random.uniform(1,4))
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processing started for {on}", flush=True)
     vi = traverse_all(on)
