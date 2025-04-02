@@ -42,3 +42,14 @@ docker build -t mineo:latest .
 ~~~
 docker run -it --name <container_name> mineo:latest <keyword>
 ~~~
+
+<br>
+<br>
+
+### 비트코인 주소 추출
+~~~
+python3 extract_bitcoin.py [file_or_directory]
+~~~
+- 단일 파일을 입력하면 해당 파일 내에서 비트코인 주소를 추출한 후, CLI에 결과를 출력
+- onion 디렉토리를 입력하면, 해당 디렉토리 내의 각 파일(페이지)에서 비트코인 주소를 추출하여 결과를 하나의 파일로 저장
+- 결과 파일은 bitaddr_[onion].txt 형태로 생성
