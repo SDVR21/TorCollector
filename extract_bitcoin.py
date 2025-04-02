@@ -1,11 +1,5 @@
 import os
 import sys
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
-from collections import Counter
-from matplotlib.pyplot import title
-import time
-import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding = 'utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding = 'utf-8')
