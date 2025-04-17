@@ -61,7 +61,7 @@ def traverse_list(seed, tag):
             if tag[0] != '/':
                 tag = '/'+tag
         url = "http://"+seed+".onion"+tag
-        req = requests.get(url, timeout=10)
+        req = requests.get(url, timeout=60)
         soup = BeautifulSoup(req.content, 'lxml')
         save_file(seed, tag, soup.prettify()) #soup 저장
         aTag = soup.find_all('a')
