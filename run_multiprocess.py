@@ -18,11 +18,13 @@ from bs4.builder import XMLParsedAsHTMLWarning
 import warnings
 warnings.filterwarnings('ignore', category=XMLParsedAsHTMLWarning)
 
-socks.set_default_proxy(socks.SOCKS5, "localhost", 9050)
-socket.socket = socks.socksocket
-def getaddrinfo(*args):
-    return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
-socket.getaddrinfo = getaddrinfo
+os.environ['http_proxy']  = 'socks5h://127.0.0.1:9050'
+os.environ['https_proxy'] = 'socks5h://127.0.0.1:9050'
+# socks.set_default_proxy(socks.SOCKS5, "localhost", 9050)
+# socket.socket = socks.socksocket
+# def getaddrinfo(*args):
+#     return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+# socket.getaddrinfo = getaddrinfo
 
 def error(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}", flush=True)
